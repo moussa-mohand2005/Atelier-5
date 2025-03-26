@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Utilisateur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+    <div id="app" class="max-w-6xl mx-auto">
+        <div id="loading" class="flex justify-center items-center h-64">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p class="text-gray-600">Chargement des données utilisateur...</p>
+            </div>
+        </div>
+
+        <div id="content" class="hidden">
+
+        </div>
+    </div>
+
+    <script>
+        // 1. Fonction asynchrone qui simule la récupération de données utilisateur
+        const fetchUserData = () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const userData = {
+                        name: 'John Doe',
+                        email: 'johndoe@example.com',
+                        avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+                        gender: 'M',
+                        login: 'johnd',
+                        password: 'securePass123',
+                        address: '123 Main St, New York, NY',
+                        phone: '+1 555-123-4567',
+                        birthdate: '1985-05-15',
+                        role: 'admin'
+                    };
+                    resolve(userData);
+                }, 2000);
+            });
+        };
+
+        const fetchUserOrders = (userId) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const orders = [
+                        { id: 'ORD-001', date: '2025-01-15', total: 125.99, status: 'delivered' },
+                        { id: 'ORD-002', date: '2025-02-20', total: 89.50, status: 'processing' },
+                        { id: 'ORD-003', date: '2025-03-10', total: 210.75, status: 'shipped' }
+                    ];
+                    resolve(orders);
+                }, 1500);
+            });
+        };
+
+        const displayUserProfile = (user) => {
+            const profileHTML = `
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex flex-col sm:flex-row items-center">
+                        <img src="${user.avatar}" alt="${user.name}" class="w-24 h-24 rounded-full object-cover mb-4 sm:mb-0 sm:mr-6">
+                        <div class="text-center sm:text-left">
+                            <h1 class="text-2xl font-bold text-gray-800">${user.name}</h1>
+                            <p class="text-gray-600">${user.email}</p>
+                            <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full mt-2">${user.role}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div class="p-3 bg-gray-50 rounded">
+                            <p class="text-sm"><span class="font-medium text-gray-700">Login:</span> ${user.login}</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded">
+                            <p class="text-sm"><span class="font-medium text-gray-700">Genre:</span> ${user.gender === 'M' ? 'Masculin' : 'Féminin'}</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded">
+                            <p class="text-sm"><span class="font-medium text-gray-700">Téléphone:</span> ${user.phone}</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded">
+                            <p class="text-sm"><span class="font-medium text-gray-700">Date de naissance:</span> ${user.birthdate}</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded md:col-span-2">
+                            <p class="text-sm"><span class="font-medium text-gray-700">Adresse:</span> ${user.address}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return profileHTML;
+        };
+
+        const displayUsersTable = (users) => {
+            if (!Array.isArray(users)) {
+                users = [users];
+            }
+            
+            const tableHTML = `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                    <h2 class="text-xl font-semibold p-4 bg-gray-50 border-b">Liste des utilisateurs</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Genre</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Adresse</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${users.map(user => `
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="${user.avatar}" alt="">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">${user.name}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.login}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.gender === 'M' ? 'Masculin' : 'Féminin'}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.address}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">${user.role}</span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            return tableHTML;
+        };
+
+        const displayUserOrders = (orders) => {
+            const getStatusClass = (status) => {
+                switch(status) {
+                    case 'delivered': return 'bg-green-100 text-green-800';
+                    case 'processing': return 'bg-yellow-100 text-yellow-800';
+                    case 'shipped': return 'bg-blue-100 text-blue-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            };
+
+            const getStatusText = (status) => {
+                switch(status) {
+                    case 'delivered': return 'Livré';
+                    case 'processing': return 'En traitement';
+                    case 'shipped': return 'Expédié';
+                    default: return status;
+                }
+            };
+            
+            const ordersHTML = `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <h2 class="text-xl font-semibold p-4 bg-gray-50 border-b">Commandes récentes</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${orders.map(order => `
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.id}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.date}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.total.toFixed(2)} €</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(order.status)}">${getStatusText(order.status)}</span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            return ordersHTML;
+        };
+
+        const loadUserDataAndOrders = async () => {
+            try {
+                const userData = await fetchUserData();
+                
+                let contentHTML = '';
+                contentHTML += displayUserProfile(userData);
+                contentHTML += displayUsersTable(userData);
+                
+                document.getElementById('content').innerHTML = contentHTML;
+                document.getElementById('content').classList.remove('hidden');
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <p class="text-gray-600">Chargement des commandes...</p>
+                    </div>
+                `;
+                
+                const orders = await fetchUserOrders(userData.login);
+                
+                document.getElementById('content').innerHTML += displayUserOrders(orders);
+                document.getElementById('loading').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <p>Une erreur est survenue: ${error.message}</p>
+                    </div>
+                `;
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', loadUserDataAndOrders);
+    </script>
+</body>
+</html>
